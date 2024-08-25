@@ -11,8 +11,8 @@ Welcome to **TeamBuilder**, a Spring Boot application designed to automate the p
 
 ### Technical Details 
 
-The application is build using strategy pattern to add multiple strategies for building team. At current supports domain specific strategy i.e one for each domain build a team.
-Can be eaily extended to Years Of Experince strategy.
+The application is build using strategy pattern to add multiple strategies for building team. At current supports domain specific strategy i.e team is build taking one individual from each domain one-by-one till required size of team is achieved.
+Can be easily extended to Years Of Experience based strategy.
 
 The application uses Kafka for notfication thus making it loosely coupled and highly extensible by allowing asynchronous processing and buffering at the same time it being highy reliable.
 
@@ -45,7 +45,7 @@ To get started with TeamBuilder, follow these steps:
 
 4. **Run Kafka on your System .**
 
-5. **Run both the services seperately.**
+5. **Run both services seperately.**
 
 6. **Add partcipants details and buildTeam of desired size !!**
 
