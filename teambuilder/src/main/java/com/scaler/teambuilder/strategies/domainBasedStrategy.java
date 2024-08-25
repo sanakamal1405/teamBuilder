@@ -44,12 +44,18 @@ public class domainBasedStrategy implements IbuildTeam {
     public void buildTeam(int size) {
 
         try {
+
             List<Participant> list = participantRepo.findAll();
+
+            // Collecting all the Unassigned members
+            list=list.stream().filter(participant -> participant.getAssigned()==0).collect(Collectors.toList());
 
             int teamsCount = list.size() / size;
 
             if (list.size() % size != 0)
                 teamsCount++;
+
+            //Segregating on the basis of domain of the participant
 
             Map<String, List<Participant>> map = list.stream()
                     .collect(Collectors.groupingBy(participant -> participant.getDomain()));
@@ -57,13 +63,20 @@ public class domainBasedStrategy implements IbuildTeam {
             List<Participant> team = new ArrayList<>();
             int index = 0;
 
+
             //Team Building Algorithm : One fom each type till group size reached
 
 
-            while (teamsCount != 0) {
+            while (teamsCount != 0)
+            {
                 for (Map.Entry<String, List<Participant>> m : map.entrySet()) {
+
                     List<Participant> l = m.getValue();
-                    if (teamsCount == 1 && team.size() == list.size() % size && list.size() % size != 0) {
+
+
+                    if (teamsCount == 1 && team.size() == list.size() % size && list.size() % size != 0)
+                    {   //if only one team left with numbers of members left is less than desired size
+
                         teamsCount = 0;
 
                         Team t1 = new Team();
@@ -72,6 +85,7 @@ public class domainBasedStrategy implements IbuildTeam {
 
                         for (Participant p : team) {
                             p.setTeam(t2);
+                            p.setAssigned(1);
                             participantRepo.save(p);
                             NotificationDTO notificationDTO = NotificationDTO.builder()
                                     .to(p.getEmail())
@@ -86,16 +100,17 @@ public class domainBasedStrategy implements IbuildTeam {
 
                         break;
                     }
-                    if (l.size() <= index) {
-
-                        System.out.println(l.size() + "  " + index);
-
+                    if (l.size() <= index)
+                    {
+                        //if all the members of this domian is alloted then move to next domain
                         continue;
 
-                    } else {
+                    }
+                    else {
                         team.add(l.get(index));
-                        if (team.size() == size) {
-
+                        if (team.size() == size)
+                        {
+                            //if team size reached desired size then create new team
 
                             Team t1 = new Team();
                             t1.setPartcipant(team);
@@ -103,6 +118,7 @@ public class domainBasedStrategy implements IbuildTeam {
 
                             for (Participant p : team) {
                                 p.setTeam(t2);
+                                p.setAssigned(1);
                                 participantRepo.save(p);
 
                                 NotificationDTO notificationDTO = NotificationDTO.builder()
@@ -115,9 +131,6 @@ public class domainBasedStrategy implements IbuildTeam {
 
                                 kafkaTemplate.send("sendEmail", objectMapper.writeValueAsString(notificationDTO));
                             }
-
-
-//                            System.out.println("Next team");
                             team = new ArrayList<>();
                             teamsCount--;
                         }
@@ -126,11 +139,6 @@ public class domainBasedStrategy implements IbuildTeam {
 
                 }
                 index++;
-            }
-            if (list.size() % size != 0) {
-                System.out.println("here1");
-                for (Participant p : team)
-                    System.out.println(p);
             }
 
         } catch (JsonProcessingException e) {

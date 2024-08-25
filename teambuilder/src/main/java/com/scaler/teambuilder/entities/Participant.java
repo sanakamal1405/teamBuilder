@@ -19,6 +19,7 @@ public class Participant {
     String email;
     String phone;
     String domain;
+    int assigned;
     @ManyToOne
     @JoinColumn(name="team_id")
     @JsonIgnore
