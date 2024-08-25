@@ -36,7 +36,7 @@ public class EmailService {
         //sending a mail
 
         final String fromEmail = "kamalsana5041@gmail.com"; //requires valid gmail id
-        final String password = "ghyy mrkb mxrv tzgr"; // correct password for gmail id
+        final String password = ""; // correct password for gmail id
         final String toEmail = dto.getTo(); // can be any email id
 
         Properties props = new Properties();
