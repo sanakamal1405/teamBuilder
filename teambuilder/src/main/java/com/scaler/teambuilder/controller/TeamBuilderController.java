@@ -48,17 +48,20 @@ public class TeamBuilderController {
 //    }
 
     @PostMapping("/participant")
-    public ParticipantResponseDTO addParticipant(@RequestBody ParticipantRequestDTO participantRequestDTO) {
+    public ResponseEntity<ParticipantResponseDTO> addParticipant(@RequestBody ParticipantRequestDTO participantRequestDTO) {
         ParticipantResponseDTO participantResponseDTO = new ParticipantResponseDTO();
-        try{
-            Participant participantRes= participantService.addParticipantToDB(participantRequestDTO);
+        try {
+            Participant participantRes = participantService.addParticipantToDB(participantRequestDTO);
 
             participantResponseDTO.setParticipant(participantRes);
             participantResponseDTO.setResponseStatus(com.scaler.teambuilder.dto.ResponseStatus.SUCCESS);
-        } catch (Exception e) {
+
+        return new ResponseEntity<>(participantResponseDTO, HttpStatus.OK);
+    }
+        catch (Exception e) {
             participantResponseDTO.setResponseStatus(ResponseStatus.FAILURE);
+            return new ResponseEntity<>(participantResponseDTO, HttpStatus.BAD_REQUEST);
         }
-        return participantResponseDTO;
 
     }
 

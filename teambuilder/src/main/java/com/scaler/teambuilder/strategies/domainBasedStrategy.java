@@ -9,6 +9,8 @@ import com.scaler.teambuilder.entities.Team;
 import com.scaler.teambuilder.repos.ParticipantRepo;
 import com.scaler.teambuilder.repos.TeamRepo;
 import org.springframework.context.annotation.Primary;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
@@ -41,7 +43,9 @@ public class domainBasedStrategy implements IbuildTeam {
     }
 
     @Override
-    public void buildTeam(int size) {
+    public ResponseEntity<List<Team> > buildTeam(int size) {
+
+        List<Team> response=new ArrayList<>();
 
         try {
 
@@ -61,6 +65,10 @@ public class domainBasedStrategy implements IbuildTeam {
                     .collect(Collectors.groupingBy(participant -> participant.getDomain()));
 
             List<Participant> team = new ArrayList<>();
+
+            System.out.println(map);
+
+
             int index = 0;
 
 
@@ -81,7 +89,10 @@ public class domainBasedStrategy implements IbuildTeam {
 
                         Team t1 = new Team();
                         t1.setPartcipant(team);
+
                         Team t2 = teamRepo.save(t1);
+
+
 
                         for (Participant p : team) {
                             p.setTeam(t2);
@@ -97,6 +108,8 @@ public class domainBasedStrategy implements IbuildTeam {
 
                             kafkaTemplate.send("sendEmail", objectMapper.writeValueAsString(notificationDTO));
                         }
+
+                        response.add(t2);
 
                         break;
                     }
@@ -114,7 +127,11 @@ public class domainBasedStrategy implements IbuildTeam {
 
                             Team t1 = new Team();
                             t1.setPartcipant(team);
+
+
                             Team t2 = teamRepo.save(t1);
+
+
 
                             for (Participant p : team) {
                                 p.setTeam(t2);
@@ -131,6 +148,8 @@ public class domainBasedStrategy implements IbuildTeam {
 
                                 kafkaTemplate.send("sendEmail", objectMapper.writeValueAsString(notificationDTO));
                             }
+
+                            response.add(t2);
                             team = new ArrayList<>();
                             teamsCount--;
                         }
@@ -142,8 +161,13 @@ public class domainBasedStrategy implements IbuildTeam {
             }
 
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        catch(Exception e)
+        {
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

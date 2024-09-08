@@ -29,14 +29,14 @@ public class TeamBuilderService {
     public ResponseEntity<?> buildTeam(int size) {
 
         try{
-        IbuildTeam.buildTeam(size);
+        return IbuildTeam.buildTeam(size);
 
         } catch (Exception e) {
             new ResponseEntity<>(new RuntimeException(e),HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
 }
